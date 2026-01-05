@@ -1,0 +1,904 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DFS (Design for Style) — Rénovation & Finition Express Bruxelles</title>
+  <meta name="description" content="Rénovation & Finition Express (1–2 jours) à Bruxelles + alentours (jusqu’à Waterloo). Finitions propres, peinture, petites reprises. Matériaux client. 390€/jour. Devis sur photos." />
+  <meta name="theme-color" content="#0b0f19" />
+  <style>
+    :root{
+      --bg:#0b0f19;
+      --card:#111827;
+      --muted:#9ca3af;
+      --text:#e5e7eb;
+      --accent:#22c55e;
+      --accent2:#38bdf8;
+      --shadow: 0 18px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+      --radius2: 26px;
+      --max: 1100px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: radial-gradient(1200px 700px at 15% 15%, rgba(56,189,248,.18), transparent 60%),
+                  radial-gradient(900px 600px at 85% 20%, rgba(34,197,94,.14), transparent 55%),
+                  radial-gradient(1000px 800px at 50% 95%, rgba(251,113,133,.10), transparent 60%),
+                  var(--bg);
+      color:var(--text);
+      line-height:1.5;
+    }
+    a{color:inherit; text-decoration:none}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px}
+    .topbar{
+      display:flex; gap:12px; justify-content:space-between; align-items:center;
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(10px);
+      background: rgba(11,15,25,.72);
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      padding:12px 18px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      font-weight:800; letter-spacing:.3px;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 12px; border-radius:999px;
+      background: rgba(34,197,94,.14);
+      border: 1px solid rgba(34,197,94,.35);
+      color: #bbf7d0;
+      font-size:13px;
+      white-space:nowrap;
+    }
+    .badge sup{font-size:10px; margin-left:2px}
+    .nav{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+    .nav a{
+      padding:8px 10px; border-radius:999px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.08);
+      font-size:13px;
+    }
+    .nav a:hover{border-color: rgba(56,189,248,.45); background: rgba(56,189,248,.10)}
+    .hero{
+      margin-top:18px;
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap:18px;
+      align-items:stretch;
+    }
+    @media (max-width: 920px){
+      .hero{grid-template-columns:1fr}
+      .nav{display:none}
+    }
+    .panel{
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: var(--radius2);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .panel-inner{padding:22px}
+    .kicker{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      margin-bottom:14px;
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 12px; border-radius:999px;
+      background: rgba(56,189,248,.12);
+      border: 1px solid rgba(56,189,248,.30);
+      color:#c7efff;
+      font-size:13px;
+    }
+    h1{margin:0 0 10px; font-size:34px; line-height:1.12}
+    @media (max-width: 520px){ h1{font-size:28px} }
+    .lead{color: var(--muted); font-size:16px; margin:0 0 18px}
+    .cta-row{display:flex; gap:12px; flex-wrap:wrap; margin-top:14px}
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      padding:12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      font-weight:700;
+      font-size:14px;
+      cursor:pointer;
+    }
+    .btn:hover{border-color: rgba(255,255,255,.22)}
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(34,197,94,.95), rgba(56,189,248,.85));
+      border: 0;
+      color:#04110a;
+    }
+    .btn.primary:hover{filter: brightness(1.02)}
+    .mini{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 520px){ .mini{grid-template-columns:1fr} }
+    .mini .box{
+      padding:14px;
+      border-radius: var(--radius);
+      background: rgba(17,24,39,.72);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .box b{display:block; margin-bottom:6px}
+    .box span{color:var(--muted); font-size:13px}
+    .box sup{font-size:10px; margin-left:2px}
+    .side{
+      display:flex; flex-direction:column; gap:12px;
+    }
+    .side .card{
+      padding:18px;
+      border-radius: var(--radius2);
+      background: rgba(17,24,39,.72);
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: var(--shadow);
+    }
+    .list{margin:10px 0 0; padding:0; list-style:none}
+    .list li{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:8px 0;
+      border-bottom: 1px dashed rgba(255,255,255,.10);
+    }
+    .list li:last-child{border-bottom:0}
+    .dot{
+      width:10px; height:10px; border-radius:999px; background: rgba(34,197,94,.95);
+      margin-top:6px; flex:0 0 auto;
+    }
+    .section{margin-top:22px}
+    .section h2{margin:0 0 10px; font-size:22px}
+    .muted{color:var(--muted)}
+    .grid3{
+      display:grid; grid-template-columns: repeat(3, 1fr);
+      gap:12px;
+    }
+    @media (max-width: 920px){ .grid3{grid-template-columns:1fr} }
+    .price-card{
+      padding:16px;
+      border-radius: var(--radius2);
+      background: rgba(17,24,39,.72);
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .price-card .tag{
+      position:absolute; top:12px; right:12px;
+      padding:6px 10px; border-radius:999px;
+      font-size:12px; font-weight:800;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+    }
+    .price-card .name{font-weight:900; font-size:16px; margin-bottom:6px}
+    .price-card .price{font-size:28px; font-weight:950; letter-spacing:.2px}
+    .price-card .sub{color:var(--muted); font-size:13px; margin-top:2px}
+    .price-card ul{margin:12px 0 0; padding-left:18px; color: var(--text)}
+    .price-card li{margin:6px 0}
+    .divider{
+      height:1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.14), transparent);
+      margin:18px 0;
+    }
+    .table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      overflow:hidden;
+      border-radius: var(--radius2);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(17,24,39,.62);
+    }
+    .table th, .table td{
+      padding:12px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+    }
+    .table th{font-size:12px; letter-spacing:.4px; text-transform:uppercase; color:#cbd5e1}
+    .table tr:last-child td{border-bottom:0}
+    .table .strong{font-weight:900}
+    .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
+      background: rgba(34,197,94,.14);
+      border: 1px solid rgba(34,197,94,.32);
+      color:#bbf7d0;
+      font-weight:800; font-size:12px;
+      white-space:nowrap;
+    }
+    .chips{display:flex; gap:10px; flex-wrap:wrap}
+    .faq{
+      display:grid; grid-template-columns:1fr 1fr; gap:12px;
+    }
+    @media (max-width: 920px){ .faq{grid-template-columns:1fr} }
+    details{
+      background: rgba(17,24,39,.72);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius2);
+      padding:14px 14px;
+    }
+    summary{
+      cursor:pointer; font-weight:900;
+      list-style:none;
+    }
+    summary::-webkit-details-marker{display:none}
+    details p{margin:10px 0 0; color: var(--muted)}
+    .calc{
+      display:grid; grid-template-columns: 1fr 1fr; gap:12px;
+    }
+    @media (max-width: 920px){ .calc{grid-template-columns:1fr} }
+    .calc .calcbox{
+      background: rgba(17,24,39,.72);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius2);
+      padding:16px;
+      box-shadow: var(--shadow);
+    }
+    select, input[type="checkbox"], input[type="radio"]{accent-color: var(--accent)}
+    select{
+      width:100%;
+      padding:12px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      color: var(--text);
+      font-weight:800;
+      outline:none;
+    }
+    input[type="text"], textarea, input[type="number"]{
+      width:100%;
+      padding:12px;
+      border-radius:14px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      color:var(--text);
+      font-weight:800;
+      outline:none;
+      font-family:inherit;
+    }
+    textarea{min-height:110px; resize:vertical; font-weight:700}
+    input[type="number"]{max-width:120px}
+    .note{font-size:12px; color: var(--muted); margin-top:8px}
+    .formlabel{display:block;font-size:13px;color:#cbd5e1;margin:12px 0 6px}
+    .seg{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-top:10px;
+    }
+    .seg label{
+      display:inline-flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.05);
+      cursor:pointer;
+      user-select:none;
+      font-weight:900;
+      font-size:13px;
+    }
+    .seg input{margin:0}
+    .seg label:hover{border-color: rgba(56,189,248,.45); background: rgba(56,189,248,.10)}
+    .kpi{
+      display:flex; gap:10px; flex-wrap:wrap; margin-top:10px
+    }
+    .kpi .pill2{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 10px; border-radius:999px;
+      background:rgba(34,197,94,.10);
+      border:1px solid rgba(34,197,94,.28);
+      color:#bbf7d0;
+      font-size:12px;
+      font-weight:900;
+    }
+    .workline{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.04);
+      margin-top:10px;
+    }
+    .workline b{font-size:13px}
+    .workline span{font-size:12px; color:var(--muted); font-weight:700}
+    .total{
+      padding:14px;
+      border-radius: var(--radius2);
+      background: linear-gradient(135deg, rgba(34,197,94,.16), rgba(56,189,248,.12));
+      border: 1px solid rgba(255,255,255,.10);
+    }
+    .footer{
+      margin-top:24px;
+      padding-top:16px;
+      color: var(--muted);
+      font-size:13px;
+      border-top: 1px solid rgba(255,255,255,.10);
+    }
+    .hide{display:none !important}
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand">
+      <div style="width:34px;height:34px;border-radius:14px;background:linear-gradient(135deg,rgba(34,197,94,.95),rgba(56,189,248,.85));"></div>
+      <div>
+        DFS — <span style="opacity:.95">Design for Style</span><br/>
+        <span style="font-size:12px;color:var(--muted);font-weight:700">Bruxelles + alentours (jusqu’à Waterloo)</span>
+      </div>
+    </div>
+    <div class="nav">
+      <a href="#packs">Packs</a>
+      <a href="#prix">Grille</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contact">Devis WhatsApp</a>
+    </div>
+    <div class="badge">390€/jour • matériaux client<sup>*</sup></div>
+  </div>
+
+  <div class="wrap">
+
+    <section class="hero">
+      <div class="panel">
+        <div class="panel-inner">
+          <div class="kicker">
+            <span class="pill">1–2 jours</span>
+            <span class="pill">Finitions propres</span>
+            <span class="pill">Devis sur photos</span>
+          </div>
+          <h1>Rénovation & Finition Express<br/>Bruxelles + alentours</h1>
+
+          <p class="lead">
+            Remise au propre en <b>1–2 jours</b>, sans chantier interminable :
+            <b>préparation, rebouchage/ponçage, peinture, joints, petites reprises, réglages</b>.<br/>
+            <b>Objectif :</b> propre, net, fini — <b>prêt à louer / vendre</b>.
+          </p>
+
+          <div class="cta-row">
+            <a class="btn primary" href="#contact">Préparer mon devis (WhatsApp)</a>
+            <a class="btn" href="#packs">Voir les packs</a>
+          </div>
+
+          <div class="mini">
+            <div class="box">
+              <b>Zone</b>
+              <span>Bruxelles + alentours • jusqu’à Waterloo</span>
+            </div>
+            <div class="box">
+              <b>Prix clair</b>
+              <span>Main d’œuvre • 390€/jour • matériaux client<sup>*</sup></span>
+            </div>
+          </div>
+
+          <p class="note">
+            <b>*</b> Matériaux généralement fournis par le client. Option possible : je peux acheter/aller chercher les matériaux —
+            <b>forfait 45€</b> (1 magasin) + coût matériaux (ticket) + livraison/parking si nécessaire.
+          </p>
+
+          <div class="divider"></div>
+
+          <div class="chips">
+            <span class="chip">Pour état des lieux</span>
+            <span class="chip">Mise en location / Airbnb</span>
+            <span class="chip">Proprios / locataires</span>
+            <span class="chip">Agences / syndics</span>
+          </div>
+
+          <div class="chips" style="margin-top:10px">
+            <span class="chip">Week-end sur demande</span>
+            <span class="chip">Samedi +20%</span>
+            <span class="chip">Dimanche / férié +35%</span>
+          </div>
+
+          <p class="note">
+            Service orienté “finitions + remise au propre”. Pas de gros structurel, humidité lourde, plomberie/élec complexe.
+          </p>
+        </div>
+      </div>
+
+      <div class="side">
+        <div class="card">
+          <b>Devis express (propre) en 2 minutes</b>
+          <ul class="list">
+            <li><span class="dot"></span><span><b>1)</b> Tu choisis : packs / petits travaux / gros travaux</span></li>
+            <li><span class="dot"></span><span><b>2)</b> Tu remplis les infos essentielles</span></li>
+            <li><span class="dot"></span><span><b>3)</b> WhatsApp s’ouvre + tu ajoutes tes photos</span></li>
+          </ul>
+          <div class="divider"></div>
+          <div class="muted" style="font-size:13px">
+            Paiement : 30% réservation / 70% fin de chantier
+          </div>
+        </div>
+
+        <div class="card">
+          <b>Ce que j’attends (pour répondre vite)</b>
+          <ul class="list">
+            <li><span class="dot" style="background:rgba(56,189,248,.95)"></span><span>Commune + accès</span></li>
+            <li><span class="dot" style="background:rgba(56,189,248,.95)"></span><span>Deadline</span></li>
+            <li><span class="dot" style="background:rgba(56,189,248,.95)"></span><span>Détails (1 phrase suffit)</span></li>
+            <li><span class="dot" style="background:rgba(56,189,248,.95)"></span><span>3–5 photos (après ouverture WhatsApp)</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="packs" class="section">
+      <h2>3 packs (prix simple, résultat clair)</h2>
+      <p class="muted">Main d’œuvre incluse. Matériaux généralement fournis par le client<sup>*</sup>.</p>
+
+      <div class="grid3">
+        <div class="price-card">
+          <span class="tag">Rapide</span>
+          <div class="name">Refresh Express</div>
+          <div class="price">390€</div>
+          <div class="sub">1 jour • main d’œuvre</div>
+          <ul>
+            <li>Retouches peinture / zones ciblées</li>
+            <li>Rebouchage léger + ponçage local</li>
+            <li>Joints silicone accessibles</li>
+            <li>Réglages simples (porte/poignées)</li>
+            <li>Finitions + nettoyage</li>
+          </ul>
+        </div>
+
+        <div class="price-card">
+          <span class="tag">Le + demandé</span>
+          <div class="name">Pièce Nickel</div>
+          <div class="price">780€</div>
+          <div class="sub">2 jours • main d’œuvre</div>
+          <ul>
+            <li>Préparation complète (protection incluse)</li>
+            <li>Peinture complète d’1 pièce standard</li>
+            <li>Reprises légères + finitions soignées</li>
+            <li>Nettoyage de fin de chantier</li>
+            <li>Rendu uniforme</li>
+          </ul>
+        </div>
+
+        <div class="price-card">
+          <span class="tag">Premium</span>
+          <div class="name">Finition Pro</div>
+          <div class="price">990€</div>
+          <div class="sub">2 jours • main d’œuvre</div>
+          <ul>
+            <li>Préparation renforcée (détails)</li>
+            <li>Micro-reprises + précision “propre”</li>
+            <li>Contrôle final + retouches finition incluses</li>
+            <li>Idéal avant shooting / mise en vente</li>
+            <li>Rendu premium</li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="note">
+        <b>*</b> Option possible : je peux acheter/aller chercher les matériaux —
+        <b>forfait 45€</b> (1 magasin) + coût matériaux (ticket) + livraison/parking si nécessaire.
+      </p>
+    </section>
+
+    <section id="prix" class="section">
+      <h2>Grille de prix ultra lisible</h2>
+
+      <table class="table" aria-label="Grille de prix">
+        <thead>
+          <tr>
+            <th>Offre</th>
+            <th>Durée</th>
+            <th>Prix main d’œuvre</th>
+            <th>Idéal pour</th>
+            <th>Inclus (résumé)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="strong">Refresh Express</td>
+            <td>1 jour</td>
+            <td class="strong">390€</td>
+            <td>Retouches / état des lieux</td>
+            <td>Rebouchage léger, retouches, joints accessibles, réglages simples, nettoyage</td>
+          </tr>
+          <tr>
+            <td class="strong">Pièce Nickel</td>
+            <td>2 jours</td>
+            <td class="strong">780€</td>
+            <td>1 pièce complète uniforme</td>
+            <td>Préparation + peinture complète 1 pièce standard + reprises légères + finitions</td>
+          </tr>
+          <tr>
+            <td class="strong">Finition Pro</td>
+            <td>2 jours</td>
+            <td class="strong">990€</td>
+            <td>Rendu premium</td>
+            <td>Prépa renforcée, micro-reprises, contrôle final + retouches finition incluses</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="note">
+        <b>*</b> Matériaux généralement fournis par le client. Option possible : je peux acheter/aller chercher les matériaux —
+        <b>forfait 45€</b> (1 magasin) + coût matériaux (ticket) + livraison/parking si nécessaire.
+      </p>
+
+      <div class="divider"></div>
+      <div class="chips">
+        <span class="chip">Petits travaux à la carte</span>
+        <span class="chip">Prise / interrupteur (pose)</span>
+        <span class="chip">Luminaire simple</span>
+        <span class="chip">Joints silicone</span>
+        <span class="chip">Réglage porte</span>
+      </div>
+      <p class="note">Les prix exacts dépendent de l’accès, du type de matériel, et de la quantité. Tu envoies les infos → je chiffre proprement.</p>
+    </section>
+
+    <section id="faq" class="section">
+      <h2>FAQ</h2>
+
+      <div class="faq">
+        <details>
+          <summary>Est-ce que tu fournis les matériaux ?</summary>
+          <p>
+            En général, le client fournit les matériaux (peinture, enduit, silicone, prises/interrupteurs, etc.).<br/>
+            <b>Option :</b> je peux aussi acheter/aller chercher les matériaux —
+            <b>forfait 45€</b> (1 magasin) + coût matériaux (ticket) + livraison/parking si nécessaire.
+          </p>
+        </details>
+        <details>
+          <summary>Qu’est-ce qui n’est pas inclus ?</summary>
+          <p>Humidité lourde, gros plafonnage/structurel, plomberie/électricité complexe, chantiers qui dépassent clairement 1–2 jours.</p>
+        </details>
+        <details>
+          <summary>Comment tu bloques un créneau ?</summary>
+          <p>Acompte 30% pour réservation, solde 70% à la fin du chantier.</p>
+        </details>
+        <details>
+          <summary>Zone d’intervention ?</summary>
+          <p>Bruxelles + alentours, jusqu’à Waterloo.</p>
+        </details>
+
+        <details>
+          <summary>Travail le week-end ? (samedi / dimanche)</summary>
+          <p>
+            Intervention principalement en semaine.
+            Week-end possible sur demande uniquement :
+            <b>samedi +20%</b> (soit <b>468€ / jour</b>) et <b>dimanche / jour férié +35%</b>
+            (soit <b>526,50€ / jour</b>).
+            Minimum facturé : <b>1 journée</b>.
+          </p>
+        </details>
+      </div>
+    </section>
+
+    <section id="contact" class="section">
+      <h2>Devis WhatsApp (structure claire)</h2>
+      <p class="muted">Tu remplis ici → WhatsApp s’ouvre avec un message propre. Ensuite tu ajoutes tes photos.</p>
+
+      <div class="panel" id="devis-form" style="margin-top:14px">
+        <div class="panel-inner">
+          <h3 style="margin:0 0 10px">1) Type de demande</h3>
+
+          <div class="seg" role="radiogroup" aria-label="Type de demande">
+            <label><input type="radio" name="rtype" id="rtype_pack" value="pack" checked> Packs (1–2 jours)</label>
+            <label><input type="radio" name="rtype" id="rtype_small" value="small"> Petits travaux (prises, interrupteurs…)</label>
+            <label><input type="radio" name="rtype" id="rtype_other" value="other"> Autre (gros travaux / sur mesure)</label>
+          </div>
+
+          <div class="kpi">
+            <span class="pill2">Réponse rapide</span>
+            <span class="pill2">Devis sur photos</span>
+            <span class="pill2">Bruxelles + alentours</span>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="calc">
+            <div class="calcbox">
+              <h3 style="margin:0 0 10px">2) Infos essentielles</h3>
+
+              <label class="formlabel">Commune</label>
+              <select id="f_commune">
+                <option value="">Choisir…</option>
+                <option>Bruxelles</option><option>Jette</option><option>Anderlecht</option><option>Uccle</option>
+                <option>Forest</option><option>Ixelles</option><option>Etterbeek</option><option>Waterloo</option>
+                <option>Autre (préciser)</option>
+              </select>
+
+              <div id="block_commune_precise" class="hide">
+                <label class="formlabel">Commune (à préciser)</label>
+                <input id="f_commune_free" type="text" placeholder="Ex: Schaerbeek, Auderghem, Woluwe..." />
+              </div>
+
+              <label class="formlabel">Accès (étage / ascenseur / parking)</label>
+              <input id="f_acces" type="text" placeholder="Ex: 2e avec ascenseur, stationnement ok" />
+
+              <label class="formlabel">Deadline (date souhaitée)</label>
+              <input id="f_deadline" type="text" placeholder="Ex: avant le 15/01" />
+
+              <div id="block_details_common">
+                <label class="formlabel">Détails (1–3 phrases)</label>
+                <textarea id="f_details" placeholder="Ex: salon à rafraîchir, rebouchage + peinture murs, finitions propres."></textarea>
+              </div>
+
+              <div class="divider"></div>
+
+              <div id="block_pack">
+                <h3 style="margin:0 0 10px">Pack</h3>
+                <label class="formlabel">Choisis ton pack</label>
+                <select id="f_pack">
+                  <option value="Refresh Express — 1 jour (390€)">Refresh Express — 1 jour (390€)</option>
+                  <option value="Pièce Nickel — 2 jours (780€)" selected>Pièce Nickel — 2 jours (780€)</option>
+                  <option value="Finition Pro — 2 jours (990€)">Finition Pro — 2 jours (990€)</option>
+                </select>
+
+                <label class="formlabel">Couleur / finition (optionnel)</label>
+                <input id="f_couleur" type="text" placeholder="Ex: Murs: blanc cassé + 1 mur accent vert sauge • Plinthes: blanc satin" />
+              </div>
+
+              <div id="block_small" class="hide">
+                <h3 style="margin:0 0 10px">Petits travaux</h3>
+                <div class="note">Indique les quantités (0 = rien). Matériaux client<sup>*</sup>.</div>
+
+                <div class="workline">
+                  <div>
+                    <b>Prise</b><br><span>remplacement / pose simple</span>
+                  </div>
+                  <input id="q_socket" type="number" min="0" value="0" />
+                </div>
+
+                <div class="workline">
+                  <div>
+                    <b>Interrupteur</b><br><span>remplacement / pose simple</span>
+                  </div>
+                  <input id="q_switch" type="number" min="0" value="0" />
+                </div>
+
+                <div class="workline">
+                  <div>
+                    <b>Luminaire simple</b><br><span>dépose/pose (sans complexe)</span>
+                  </div>
+                  <input id="q_light" type="number" min="0" value="0" />
+                </div>
+
+                <div class="workline">
+                  <div>
+                    <b>Joints silicone</b><br><span>zone (douche/évier)</span>
+                  </div>
+                  <input id="q_silicone" type="number" min="0" value="0" />
+                </div>
+
+                <div class="workline">
+                  <div>
+                    <b>Réglage porte</b><br><span>charnières / fermeture</span>
+                  </div>
+                  <input id="q_door" type="number" min="0" value="0" />
+                </div>
+              </div>
+
+              <div id="block_other" class="hide">
+                <h3 style="margin:0 0 10px">Gros travaux / sur mesure</h3>
+                <div class="note">Décris l’objectif + la pièce concernée + ce que tu attends. Je te réponds avec : faisabilité + ordre de prix + créneau.</div>
+                <label class="formlabel">Explique ta demande (obligatoire)</label>
+                <textarea id="f_other_details" placeholder="Ex: rénovation complète d’une salle de bain (dépose + préparation + finitions). Précise : surfaces, état actuel, contraintes, deadline."></textarea>
+
+                <div class="note">
+                  Photos fortement recommandées (3–5 photos + gros plans).<br/>
+                  Si besoin, je peux proposer une visite/diagnostic.
+                </div>
+              </div>
+            </div>
+
+            <div class="calcbox">
+              <h3 style="margin:0 0 10px">3) Photos + envoi</h3>
+
+              <label class="formlabel">Photos (à ajouter dans WhatsApp)</label>
+              <div style="padding:14px;border-radius:18px;border:1px dashed rgba(255,255,255,.22);background:rgba(255,255,255,.04)">
+                <input id="f_photos" type="file" accept="image/*" multiple style="width:100%;color:var(--muted)" />
+                <div class="note">WhatsApp ne peut pas attacher automatiquement les photos via un lien. Après ouverture : icône 📎.</div>
+                <div id="f_photos_list" class="note" style="margin-top:8px"></div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="total">
+                <div class="muted" style="font-weight:900;letter-spacing:.2px;text-transform:uppercase;font-size:12px">Message WhatsApp (aperçu)</div>
+                <div id="f_preview" class="muted" style="margin-top:8px;white-space:pre-wrap"></div>
+              </div>
+
+              <div class="cta-row" style="margin-top:12px">
+                <button class="btn primary" id="btn_send_wa" type="button">Ouvrir WhatsApp + envoyer</button>
+                <button class="btn" id="btn_copy" type="button">Copier le message</button>
+              </div>
+
+              <div class="note">Après ouverture WhatsApp : ajoute tes photos (📎), puis envoie.</div>
+
+              <div class="footer">
+                © DFS — Design for Style • Bruxelles + alentours (jusqu’à Waterloo) • 390€/jour • matériaux client<sup>*</sup>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    (function(){
+      const WA_NUMBER = "32467719750";
+      const el = (id) => document.getElementById(id);
+
+      const rPack = el("rtype_pack");
+      const rSmall = el("rtype_small");
+      const rOther = el("rtype_other");
+
+      const blockPack = el("block_pack");
+      const blockSmall = el("block_small");
+      const blockOther = el("block_other");
+
+      const commune = el("f_commune");
+      const blockCommunePrecise = el("block_commune_precise");
+      const communeFree = el("f_commune_free");
+
+      const acces = el("f_acces");
+      const deadline = el("f_deadline");
+
+      const blockDetailsCommon = el("block_details_common");
+      const details = el("f_details");
+
+      const pack = el("f_pack");
+      const couleur = el("f_couleur");
+
+      const otherDetails = el("f_other_details");
+
+      const qSocket = el("q_socket");
+      const qSwitch = el("q_switch");
+      const qLight = el("q_light");
+      const qSilicone = el("q_silicone");
+      const qDoor = el("q_door");
+
+      const photos = el("f_photos");
+      const photosList = el("f_photos_list");
+      const preview = el("f_preview");
+
+      function currentType(){
+        if(rSmall && rSmall.checked) return "small";
+        if(rOther && rOther.checked) return "other";
+        return "pack";
+      }
+
+      function normalizeCommune(){
+        const base = commune.value || "";
+        const free = (communeFree?.value || "").trim();
+
+        const mustShowFree = (base === "Autre (préciser)") || (currentType() === "other");
+        blockCommunePrecise.classList.toggle("hide", !mustShowFree);
+
+        if(mustShowFree && free) return free;
+        if(base && base !== "Autre (préciser)") return base;
+        if(base === "Autre (préciser)" && !free) return "(commune à préciser)";
+        return "(commune à préciser)";
+      }
+
+      function showBlocks(){
+        const t = currentType();
+
+        blockPack.classList.toggle("hide", t !== "pack");
+        blockSmall.classList.toggle("hide", t !== "small");
+        blockOther.classList.toggle("hide", t !== "other");
+
+        blockDetailsCommon.classList.toggle("hide", t === "other");
+
+        normalizeCommune();
+      }
+
+      function smallSummary(){
+        const items = [];
+        const n = (x) => Math.max(0, Number(x?.value || 0));
+        const a = n(qSocket);   if(a) items.push(`Prises : ${a}`);
+        const b = n(qSwitch);   if(b) items.push(`Interrupteurs : ${b}`);
+        const c = n(qLight);    if(c) items.push(`Luminaires simples : ${c}`);
+        const d = n(qSilicone); if(d) items.push(`Joints silicone (zones) : ${d}`);
+        const e = n(qDoor);     if(e) items.push(`Réglages porte : ${e}`);
+        return items.length ? items.join(" • ") : "(à préciser)";
+      }
+
+      function buildMessage(){
+        const t = currentType();
+
+        const c = normalizeCommune();
+        const a = acces.value.trim() || "(à préciser)";
+        const dl = deadline.value.trim() || "(à préciser)";
+
+        const detCommon = details.value.trim() || "(à préciser)";
+        const detOther = (otherDetails?.value || "").trim() || "(à préciser)";
+
+        const photosCount = (photos && photos.files) ? photos.files.length : 0;
+        const photosLine = photosCount > 0 ? `Photos : ${photosCount} fichier(s) sélectionné(s) (je les joins).` : "Photos : je joins 3–5 photos.";
+
+        const lines = [];
+        lines.push("Bonjour ! Je veux un devis DFS — Rénovation & Finition Express.");
+        lines.push("");
+
+        if(t === "pack"){
+          const p = pack.value || "(à préciser)";
+          const cf = (couleur.value.trim() || "(non précisé)");
+          lines.push("Type : PACKS (1–2 jours)");
+          lines.push("Pack choisi : " + p);
+          lines.push("Couleurs / finitions : " + cf);
+          lines.push("");
+          lines.push("Détails : " + detCommon);
+        } else if(t === "small"){
+          lines.push("Type : PETITS TRAVAUX");
+          lines.push("Liste / quantités : " + smallSummary());
+          lines.push("");
+          lines.push("Détails : " + detCommon);
+        } else {
+          lines.push("Type : AUTRE (gros travaux / sur mesure)");
+          lines.push("");
+          lines.push("Demande : " + detOther);
+        }
+
+        lines.push("");
+        lines.push("Commune : " + c);
+        lines.push("Accès (étage/ascenseur) : " + a);
+        lines.push("Deadline : " + dl);
+        lines.push("");
+        lines.push(photosLine);
+
+        return lines.join("\n");
+      }
+
+      function refresh(){
+        showBlocks();
+        if(preview) preview.textContent = buildMessage();
+
+        if (photos && photos.files && photos.files.length){
+          const names = Array.from(photos.files).map(f => "• " + f.name).join("\n");
+          if(photosList) photosList.textContent = "Fichiers sélectionnés :\n" + names;
+        } else {
+          if(photosList) photosList.textContent = "";
+        }
+      }
+
+      function bind(){
+        [rPack, rSmall, rOther].forEach(r => r && r.addEventListener("change", refresh));
+
+        [commune, communeFree, acces, deadline, details, pack, couleur, otherDetails].forEach(x => x && x.addEventListener("change", refresh));
+        [communeFree, acces, deadline, details, couleur, otherDetails].forEach(x => x && x.addEventListener("keyup", refresh));
+
+        [qSocket, qSwitch, qLight, qSilicone, qDoor].forEach(x => x && x.addEventListener("change", refresh));
+        if(photos) photos.addEventListener("change", refresh);
+
+        const btnSend = el("btn_send_wa");
+        if(btnSend){
+          btnSend.addEventListener("click", function(){
+            const msg = buildMessage();
+            const url = "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent(msg);
+            window.open(url, "_blank", "noopener");
+          });
+        }
+
+        const btnCopy = el("btn_copy");
+        if(btnCopy){
+          btnCopy.addEventListener("click", async function(){
+            const msg = buildMessage();
+            try{
+              await navigator.clipboard.writeText(msg);
+              btnCopy.textContent = "Copié ✅";
+              setTimeout(()=> btnCopy.textContent = "Copier le message", 1200);
+            }catch(e){
+              alert("Copie impossible ici. Sélectionne le texte dans l’aperçu et copie manuellement.");
+            }
+          });
+        }
+      }
+
+      bind();
+      refresh();
+    })();
+  </script>
+</body>
+</html>
